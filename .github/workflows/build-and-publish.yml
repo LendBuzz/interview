@@ -1,0 +1,27 @@
+name: Build and Publish Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build Docker image
+      run: docker build -t interview-api .
+    - name: Tag Docker image
+      run: docker tag interview-api timothyvan97.jfrog.io/docker/interview-api:latest
+    - name: Login to JFrog
+      env:
+        JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
+        JFROG_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
+      run: docker login -u $JFROG_USERNAME -p $JFROG_PASSWORD timothyvan97.jfrog.io 
+    - name: Push Docker image to JFrog
+      run: docker push timothyvan97.jfrog.io/docker/interview-api:latest
